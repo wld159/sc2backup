@@ -1,0 +1,159 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>스타2 저장소 백업툴</title>
+        <style>
+            .kigui.desktop_titlebar{height:24px;position:sticky;display:flex;justify-content:space-between;user-select:none;background-color:#212121;-webkit-app-region:drag}.kigui.desktop_titlebar .title{font-size:12px;line-height:24px;padding:0 5px 0 5px}.kigui.desktop_titlebar .buttons{display:inline-flex}.kigui.desktop_titlebar .buttons>*{height:24px;width:24px;background-color:transparent;border:none;outline:none;-webkit-app-region:no-drag}.kigui.desktop_titlebar .buttons>*:hover{line-height:24px;background-color:rgba(255,255,255,0.3)}body.kigui.desktop{overflow:hidden}ul,ol,li,h1,h2,h3,h4,h5,p{margin:0;padding:0}body *{font-family:"나눔고딕","맑은 고딕";color:#F1F1F1}body.kigui{padding:0;margin:0;background-color:#3a3a3a}section.kigui{margin:10px}.kigui.header,.kigui.header-space{height:64px;min-height:64px}.kigui.header{width:100%;background-color:#212121;vertical-align:middle;display:flex;flex-direction:row;align-items:center;border-radius:0px 0px 8px 8px;box-shadow:0 1px 1px 0 rgba(0,0,0,0.12),0 4px 4px 0 rgba(0,0,0,0.24)}.kigui.header.float{position:fixed;top:0;z-index:1000}.kigui.header .title{line-height:42px;margin-left:8px;font-size:24px;font-weight:bold;color:#fafafa}.kigui.header.middle .title{text-align:center}.kigui.header .menu{height:24px;width:24px;padding:12px;margin-left:8px;border-radius:50px;color:#fafafa;user-select:none;cursor:pointer;transition-property:background-color;transition-duration:.3s}.kigui.header .menu:active{background-color:#757575}.kigui.sidemenu{height:100%;width:250px;position:fixed;top:0;left:-280px;z-index:1001;background-color:#3a3a3a;font-family:'맑은 고딕';box-shadow:0 0 1px 0 rgba(0,0,0,0.2),3px 0 1px 0 rgba(0,0,0,0.12)}.kigui.sidemenu>h1{height:64px;border-bottom:1px solid #E3E3E3;display:flex;align-items:center}.kigui.sidemenu nav ul{display:block}.kigui.sidemenu nav ul>li{display:flex;align-items:center;cursor:pointer;transition-property:background-color;transition-duration:.3s}.kigui.sidemenu nav ul>li:hover{background-color:#212121}.kigui.sidemenu nav ul>li.bl{border-bottom:1px solid #E3E3E3}.kigui.sidemenu nav ul>li>a{height:48px;width:100%;display:flex;align-items:center}.kigui.sidemenu nav ul>li i{margin:0 10px 0 10px;font-style:normal}.kigui.sidemenu nav ul>li span{font-size:13px}body.sm-en .kigui.sidemenu{transition-property:left;transition-duration:.3s}body.sm-en .kigui.header,body.sm-en section.kigui{transition-property:padding;transition-duration:.3s}body.sm-on .kigui.sidemenu{left:0}@media (min-width: 800px){body.sm-on .kigui.header{padding-left:250px}body.sm-on section.kigui{padding-left:250px}}.kigui.back-cover{height:100%;width:100%;position:fixed;z-index:500;display:none}@media (max-width: 800px){body.sm-on .kigui.back-cover{display:block}}.kigui.btn{display:inline-block;border:none;outline:none;margin:3px 3px 3px 3px;padding:10px 14px;cursor:pointer;user-select:none;font-size:14px;line-height:100%;text-decoration:none;-webkit-tap-highlight-color:rgba(0,0,0,0);background-color:#212121;border-radius:8px;transition-property:background-color box-shadow;transition-duration:.3s}.kigui.btn>i{height:14px;width:14px;display:inline-block;margin-right:4px;background-size:cover}.kigui.btn.box{box-shadow:0 2px 0 -1px rgba(0,0,0,0.15),0 2px 2px 1px rgba(0,0,0,0.2);color:#f1f1f1}.kigui.btn.box:hover{background-color:#424242}.kigui.btn.box.disabled{background-color:#616161}.kigui.btn.simple{box-shadow:none;background-color:transparent;color:#F1F1F1}.kigui.btn.simple:hover{background-color:rgba(0,0,0,0.2)}.kigui.btn:not(.disabled):active{box-shadow:0 2px 3px 2px rgba(0,0,0,0.15),0 5px 6px 3px rgba(0,0,0,0.15)}.kigui.checkbox,.kigui.radiobox,.kigui.switch{cursor:pointer}.kigui.checkbox input,.kigui.radiobox input,.kigui.switch input{display:none}.kigui.checkbox,.kigui.radiobox{height:20px;text-align:left;vertical-align:middle;display:inline-block}.kigui.checkbox .box,.kigui.radiobox .box{height:16px;width:16px;border:2px solid #BDBDBD;color:transparent;text-align:center;line-height:16px;box-sizing:border-box;user-select:none;transition-property:background-color;transition-duration:.3s}.kigui.checkbox .text,.kigui.radiobox .text{display:inline;position:relative;margin-left:20px}.kigui.checkbox{display:flex;flex-direction:row;align-items:center}.kigui.checkbox .box{display:flex;align-items:center;justify-content:center;border-radius:3px}.kigui.checkbox .box>.material-icons{font-size:16px;color:rgba(0,0,0,0)}.kigui.checkbox input:checked ~ .box{border:none;background-color:#BDBDBD}.kigui.checkbox input:checked ~ .box>.material-icons{color:#212121}.kigui.radiobox{display:flex;flex-direction:row;align-items:center}.kigui.radiobox .box{display:flex;align-items:center;justify-content:center;border-radius:16px}.kigui.radiobox .box .cy{height:8px;width:8px;border-radius:12px;background-color:transparent;transition-property:background-color;transition-duration:.3s}.kigui.radiobox input:checked ~ .box>.cy{background-color:#BDBDBD}.kigui.switch{height:20px;width:35px;display:inline-block;position:relative}.kigui.switch>.bar{height:12px;width:30px;box-shadow:0 0 1px 0 rgba(0,0,0,0.24),0 2px 4px 0 rgba(0,0,0,0.12);border-radius:10px;background-color:gray;position:absolute;top:4px;z-index:1;transition-property:background-color;transition-duration:.3s}.kigui.switch>input:checked ~ .bar{background-color:#616161}.kigui.switch>.lever{height:18px;width:18px;border-radius:15px;position:absolute;left:0;z-index:2;background-color:#f1f1f1;box-shadow:0 0 1px 0 rgba(0,0,0,0.3),0 3px 4px 0 rgba(0,0,0,0.3);transition-property:left, background-color;transition-duration:.3s}.kigui.switch>input:checked ~ .lever{left:13px;background-color:#E0E0E0}.kigui.slider{-webkit-appearance:none;height:13px;outline:none;cursor:pointer;background-color:rgba(0,0,0,0)}.kigui.slider::-webkit-slider-thumb{background:#BDBDBD;height:13px;width:13px;border-radius:13px;box-shadow:0 0 1px 0 rgba(0,0,0,0.3),0 3px 4px 0 rgba(0,0,0,0.3);top:-5px;position:relative;-webkit-appearance:none}.kigui.slider::-webkit-slider-runnable-track{background:#424242;height:3px;border-radius:1px}.kigui.txtbox.box,.kigui.txtbox input,textarea.kigui.txtbox{border:none;outline:none;padding:5px 5px 5px 5px;background-color:rgba(0,0,0,0)}.kigui.txtbox.box{border-radius:5px;box-shadow:0 0 1px 1px rgba(0,0,0,0.2),0 3px 2px 0 rgba(0,0,0,0.15);transition-property:box-shadow;transition-duration:.2s}.kigui.txtbox.box:focus{box-shadow:0 0 1px 1px rgba(0,0,0,0.2),0 4px 4px 2px rgba(0,0,0,0.15)}.kigui.txtbox.line .uline{height:2px;width:100%;background-color:#212121;transition-property:background-color color;transition-duration:.3s}.kigui.txtbox.line :focus{color:#F1F1F1}.kigui.txtbox input{width:100%;color:#d1d1d1}.kigui.txtbox input:focus ~ .uline{background-color:#757575}.kigui.frame h2,.kigui.frame h3,.kigui.frame h4{font-weight:bold}.kigui.frame{padding:10px;box-shadow:0 0 1px 0 rgba(0,0,0,0.3),0 2px 2px 0 rgba(0,0,0,0.3);background-color:#555;font-size:14px;line-height:1.6em;border-radius:10px}.kigui.frame:not(:last-of-type){margin-bottom:10px}.kigui.frame h2{font-size:1.3em;margin:8px 0 10px 0}.kigui.frame h3{font-size:1.2em;margin:8px 0 8px 0}.kigui.frame h4{font-size:1.1em;margin:6px 0 6px 0}.kigui.frame hr{border-color:#DBDBDB}
+        </style>
+        <meta charset='utf-8' />
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+
+        <script>
+            let win = require('electron').remote.getCurrentWindow();
+            const {dialog} = require('electron').remote;
+            const path = require('path');
+            const fs = require('fs-extra');
+            
+            const SC2_STORAGE_PATH = process.env['USERPROFILE'] + '\\Documents\\StarCraft II\\Accounts';
+
+            function getFormatDate() {
+                var nowDate = new Date();
+
+                var nY, nM, nD, nH, nMi, mS;
+
+                nY = nowDate.getFullYear();
+                nM = nowDate.getMonth() + 1;
+                nD = nowDate.getDate();
+                nH = nowDate.getHours();
+                nMi = nowDate.getMinutes();
+                nS = nowDate.getSeconds();
+
+                if (nM < 10) nM = '0' + nM;
+                if (nD < 10) nD = '0' + nD;
+                if (nMi < 10) nMi = '0' + nMi;
+                if (nS < 10) nS = '0' + nS;
+
+                return `${nY}${nM}${nD}_${nH}${nMi}${nS}`;
+            }
+
+            function closeWindow () {        
+                win.close();
+            }
+
+            function minimizeWindow () {   
+                win.minimize();
+            }
+
+            function maximizeWindow () {
+                win.isMaximized() ? win.unmaximize() : win.maximize();
+            }
+
+            //백업 파일 리스트 받는 함수
+            function findBackupFiles() {
+                return new Promise((resolve, reject) => {
+                    var list = [];
+
+                    fs.readdir('.\\backupFolders', (err, files) => {
+                        files.forEach(i => {
+                            if(i.includes('sc2s_')) {
+                                list.unshift(i);
+                            }
+                        });
+                        resolve(list);
+                    });
+                });
+            }
+
+            //저장소 목록 최신화 함수
+            function refleshBackupFileList() {
+                findBackupFiles().then((result) => {
+                    var listItem = '';
+                    result.forEach(i => {
+                        listItem += `<button class="kigui btn box" onclick="restoreStorage(\'${i}\')">${i}으로 복원</button>
+                        <button class="kigui btn box" onclick="deleteRestore(\'${i}\')">X</button>`;
+                    });
+                    document.getElementById('files').innerHTML = listItem;
+                });
+            }
+            //저장소 복원 함수
+            function restoreStorage(filePath) {
+                var restoreMsgOption = {
+                    title:'경고',
+                    buttons:['Yes', 'No'],
+                    message: '기존에 적용중인 저장소를 덮어씁니다.\n정말로 진행하시겠습니까?'
+                };
+
+                qTemp = dialog.showMessageBox(null, restoreMsgOption, (res) => {
+                        if (res === 0) { 
+                            fs.remove(SC2_STORAGE_PATH, (err) => {
+                                fs.copy('.\\backupFolders\\' + filePath, SC2_STORAGE_PATH, function() {
+                                    if(!err) {
+                                        dialog.showMessageBox({
+                                            title:'알림',
+                                            buttons:['Yes'],
+                                            message:'복원에 성공하였습니다.'
+                                        });
+                                    }
+                                });
+                            });
+                        }
+                    });
+            }
+            //백업 삭제 함수
+            function deleteRestore(filePath) {
+                fs.remove('.\\backupFolders\\' + filePath, (err) => {
+                    if(!err) {
+                        refleshBackupFileList();
+                    }
+                });
+            }
+
+            window.addEventListener('load', function() {
+                document.getElementById('close').addEventListener('click', closeWindow);
+                document.getElementById('minimize').addEventListener('click', minimizeWindow);
+                document.getElementById('maximize').addEventListener('click', maximizeWindow);
+
+                //목록 최신화
+                refleshBackupFileList();
+
+                document.getElementById('btnBackup').addEventListener('click', function() {
+                    var saveDate = new Date();
+                    fs.copy(SC2_STORAGE_PATH, `.\\backupFolders\\sc2s_${getFormatDate()}`, (err) => {
+                        refleshBackupFileList();
+                    });
+
+                    dialog.showMessageBox({
+                        title:'알림',
+                        buttons:['Yes'],
+                        message:'백업에 성공하였습니다.'
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body class="kigui desktop">
+        <div class="kigui desktop_titlebar">
+            <span class="title">
+                스타2 저장소 백업툴
+            </span>
+            <span class="buttons">
+                <button id="minimize">ㅡ</button>
+                <button id="maximize">ㅁ</button>
+                <button id="close">×</button>
+            </span>
+        </div>
+
+        <section class="kigui">
+            <div class="kigui frame">
+                제 작 : 키믹(3-S2-1-4517218)<br>
+                잘 사용해주세요.
+            </div>
+            <div class="kigui frame">
+                <button id="btnBackup" class="kigui btn box">즉시 백업 하기</button>
+            </div>
+            <div id="files" class="kigui frame" style="overflow:auto; height:393px">
+
+            </div>
+        </section>
+    </body>
+</html>
