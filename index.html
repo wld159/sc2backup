@@ -10,26 +10,34 @@
 
         <script>
             let win = require('electron').remote.getCurrentWindow();
+            // let tray = require('electron').remote.Tray;
             const {dialog} = require('electron').remote;
             const path = require('path');
             const fs = require('fs-extra');
+            const sevenBin = require('7zip-bin');
+            const n7z = require('node-7z');
             
+            // let automode;
+            var timeId = 0;
+            const pathTo7zip = sevenBin.path7za
             const SC2_STORAGE_PATH = process.env['USERPROFILE'] + '\\Documents\\StarCraft II\\Accounts';
+            const BACKUP_PATH = `${__dirname}\\backupFolders\\`;
 
             function getFormatDate() {
                 var nowDate = new Date();
 
                 var nY, nM, nD, nH, nMi, mS;
-
+                nowDate.getFullYear
                 nY = nowDate.getFullYear();
                 nM = nowDate.getMonth() + 1;
                 nD = nowDate.getDate();
                 nH = nowDate.getHours();
                 nMi = nowDate.getMinutes();
                 nS = nowDate.getSeconds();
-
+                nY = nY % 1000;
                 if (nM < 10) nM = '0' + nM;
                 if (nD < 10) nD = '0' + nD;
+                if (nH < 10) nH = '0' + nH;
                 if (nMi < 10) nMi = '0' + nMi;
                 if (nS < 10) nS = '0' + nS;
 
@@ -44,8 +52,47 @@
                 win.minimize();
             }
 
-            function maximizeWindow () {
-                win.isMaximized() ? win.unmaximize() : win.maximize();
+            // function maximizeWindow () {
+            //     win.isMaximized() ? win.unmaximize() : win.maximize();
+            // }
+
+            // 백업 모드
+            function backupmode() {
+                clearInterval(timeId);
+                backup();
+                if (document.getElementsByName('automode')[0].checked == true) {
+                    timeId = setInterval(backup, 3600*1000);
+                }
+            }
+
+            // 백업 함수 https://www.npmjs.com/package/node-7z-archive
+            function backup() {
+                const dir = __dirname;
+                process.chdir(SC2_STORAGE_PATH);
+
+                const myStream = n7z.add(`${dir}\\backupFolders\\sc2s_${getFormatDate()}.7z`, '*.SC2Bank' ,{
+                    $bin: pathTo7zip,
+                    recursive: true
+                });
+                process.chdir(dir);
+
+                setTimeout(refleshBackupFileList, 50); // 지연시간
+            };
+
+            // 저장소 파일 리스트 받는 함수
+            function findSC2Files() {
+                return new Promise((resolve, reject) => {
+                    var list = [];
+
+                    fs.readdir('.\\backupFolders', (err,files) => {
+                        files.forEach(i => {
+                            if (i.includes('Banks')) {
+                                list.unshift(i);
+                            }
+                        });
+                        resolve(list);
+                    });
+                });
             }
 
             //백업 파일 리스트 받는 함수
@@ -75,53 +122,79 @@
                     document.getElementById('files').innerHTML = listItem;
                 });
             }
+
+
             //저장소 복원 함수
             function restoreStorage(filePath) {
                 var restoreMsgOption = {
                     title:'경고',
                     buttons:['Yes', 'No'],
-                    message: '기존에 적용중인 저장소를 덮어씁니다.\n정말로 진행하시겠습니까?'
+                    message: '기존에 적용중인 저장소를 덮어씁니다.\n기존의 저장소는 백업됩니다.\n진행하시겠습니까?'
                 };
 
                 qTemp = dialog.showMessageBox(null, restoreMsgOption, (res) => {
                         if (res === 0) { 
-                            fs.remove(SC2_STORAGE_PATH, (err) => {
-                                fs.copy('.\\backupFolders\\' + filePath, SC2_STORAGE_PATH, function() {
-                                    if(!err) {
-                                        dialog.showMessageBox({
-                                            title:'알림',
-                                            buttons:['Yes'],
-                                            message:'복원에 성공하였습니다.'
-                                        });
-                                    }
+                                // 복원 전 현재 저장소 백업
+                                const dir = __dirname;
+                                process.chdir(SC2_STORAGE_PATH);
+
+                                const myStream1 = n7z.add(`${dir}\\backupFolders\\sc2s_${getFormatDate()}_r.7z`, '*.SC2Bank' ,{
+                                    $bin: pathTo7zip,
+                                    recursive: true
                                 });
-                            });
-                        }
+                                process.chdir(dir);
+                                
+                                // 복원
+                                setTimeout(()=> {
+                                const myStream2 = n7z.extractFull(`${dir}\\backupFolders\\${filePath}`, SC2_STORAGE_PATH ,{
+                                    $bin: pathTo7zip,
+                                    recursive: false,
+                                    $progress: true
+                                });}, 1000);
+
+                                setTimeout(()=> {
+                                dialog.showMessageBox({
+                                        title:'알림',
+                                        buttons:['Yes'],
+                                        message:'복원이 완료되었습니다. 스타2에 접속하여 확인 바랍니다.'
+                                });
+                                },1000);
+
+                                setTimeout(refleshBackupFileList, 100); // 지연시간
+                        };
                     });
-            }
+                }
+
             //백업 삭제 함수
             function deleteRestore(filePath) {
-                fs.remove('.\\backupFolders\\' + filePath, (err) => {
-                    if(!err) {
-                        refleshBackupFileList();
-                    }
+                var deleteMsgOption = {
+                    title: '경고',
+                    buttons:['Yes','No'],
+                    message: '백업된 저장소가 삭제 됩니다. \n정말로 진행하시겠습니까?'
+                };
+
+                qTemp = dialog.showMessageBox(null, deleteMsgOption, (res) => {
+                    if (res === 0) {
+                
+                        fs.remove('.\\backupFolders\\' + filePath, (err) => {
+                        if(!err) {
+                            refleshBackupFileList();
+                            }
+                        });
+                    };
                 });
-            }
+            };
 
             window.addEventListener('load', function() {
                 document.getElementById('close').addEventListener('click', closeWindow);
                 document.getElementById('minimize').addEventListener('click', minimizeWindow);
-                document.getElementById('maximize').addEventListener('click', maximizeWindow);
+                // document.getElementById('maximize').addEventListener('click', maximizeWindow);
 
                 //목록 최신화
                 refleshBackupFileList();
 
                 document.getElementById('btnBackup').addEventListener('click', function() {
-                    var saveDate = new Date();
-                    fs.copy(SC2_STORAGE_PATH, `.\\backupFolders\\sc2s_${getFormatDate()}`, (err) => {
-                        refleshBackupFileList();
-                    });
-
+                    backupmode();
                     dialog.showMessageBox({
                         title:'알림',
                         buttons:['Yes'],
@@ -133,12 +206,12 @@
     </head>
     <body class="kigui desktop">
         <div class="kigui desktop_titlebar">
-            <span class="title">
-                스타2 저장소 백업툴
+            <span class="title"> <!--제목표시줄-->
+                스타2 저장소 백업툴 v2.0.0
             </span>
             <span class="buttons">
                 <button id="minimize">ㅡ</button>
-                <button id="maximize">ㅁ</button>
+                <!-- <button id="maximize">ㅁ</button> -->
                 <button id="close">×</button>
             </span>
         </div>
@@ -146,10 +219,12 @@
         <section class="kigui">
             <div class="kigui frame">
                 제 작 : 키믹(3-S2-1-4517218)<br>
+                수 정 : 기동아(3-S2-1-1137080)<br>
                 잘 사용해주세요.
             </div>
             <div class="kigui frame">
                 <button id="btnBackup" class="kigui btn box">즉시 백업 하기</button>
+                <input class="autocheck" type="checkbox" name="automode" value="autosave" checked="true" onclick="">자동 저장(60분)</input>
             </div>
             <div id="files" class="kigui frame" style="overflow:auto; height:393px">
 
