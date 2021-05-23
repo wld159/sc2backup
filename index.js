@@ -82,7 +82,6 @@ return tray;
 // 윈도우를 생성할 수 있습니다. 몇몇 API는 이 이벤트 이후에만
 // 사용할 수 있습니다.
 app.on('ready', () => {
-  isQuiting = true;
   createWindow()
 
 })

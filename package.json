@@ -1,11 +1,11 @@
 {
   "name": "sc2backup",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "electron index.js",
-    "build": "electron-packager . sc2backup --build-version --out=dist --overwrite --platform=win32 --arch=all"
+    "build": "electron-packager . sc2backup --out=dist --overwrite --platform=win32 --arch=all"
   },
   "author": "",
   "license": "ISC",
