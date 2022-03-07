@@ -16,12 +16,30 @@
             const fs = require('fs-extra');
             const sevenBin = require('7zip-bin');
             const n7z = require('node-7z');
-            
+            var prompt = require('electron-prompt');
+            // var config = require('config.json');
+
             // let automode;
             var timeId = 0;
-            const pathTo7zip = sevenBin.path7za
-            const SC2_STORAGE_PATH = process.env['USERPROFILE'] + '\\Documents\\StarCraft II\\Accounts';
+            const pathTo7zip = sevenBin.path7za;
+            var SC2_STORAGE_PATH = new String();
+            const defaultSC2Storage = process.env['USERPROFILE'] + '\\Documents\\StarCraft II\\Accounts';
+
             const BACKUP_PATH = `${__dirname}\\backupFolders\\`;
+
+            // 파일 읽기(동기적)
+            try {
+                let configReader = fs.readFileSync('config.json', 'utf8');
+                config = JSON.parse(configReader); // 정상적으로 읽으면 진행
+                SC2_STORAGE_PATH = config.SC2StoragePath;
+            } catch (err) {  // 파일이 없는데 읽으려 함
+                var config = {
+                    "SC2StoragePath": defaultSC2Storage
+                }
+                SC2_STORAGE_PATH = defaultSC2Storage;
+                let str_config = JSON.stringify(config);
+                fs.writeFileSync('config.json', str_config, 'utf-8');
+            }
 
             function getFormatDate() {
                 var nowDate = new Date();
@@ -70,7 +88,7 @@
                 const dir = __dirname;
                 process.chdir(SC2_STORAGE_PATH);
 
-                const myStream = n7z.add(`${dir}\\backupFolders\\sc2s_${getFormatDate()}.7z`, '*.SC2Bank' ,{
+                const myStream = n7z.add(`${BACKUP_PATH}sc2s_${getFormatDate()}.7z`, '*.SC2Bank' ,{
                     $bin: pathTo7zip,
                     recursive: true
                 });
@@ -122,7 +140,7 @@
                                 const dir = __dirname;
                                 process.chdir(SC2_STORAGE_PATH);
 
-                                const myStream1 = n7z.add(`${dir}\\backupFolders\\sc2s_${getFormatDate()}_r.7z`, '*.SC2Bank' ,{
+                                const myStream1 = n7z.add(`${BACKUP_PATH}sc2s_${getFormatDate()}_r.7z`, '*.SC2Bank' ,{
                                     $bin: pathTo7zip,
                                     recursive: true
                                 });
@@ -130,7 +148,7 @@
                                 
                                 // 복원
                                 setTimeout(()=> {
-                                const myStream2 = n7z.extractFull(`${dir}\\backupFolders\\${filePath}`, SC2_STORAGE_PATH ,{
+                                const myStream2 = n7z.extractFull(`${BACKUP_PATH}${filePath}`, SC2_STORAGE_PATH ,{
                                     $bin: pathTo7zip,
                                     recursive: false,
                                     $progress: true
@@ -160,13 +178,49 @@
                 qTemp = dialog.showMessageBox(null, deleteMsgOption, (res) => {
                     if (res === 0) {
                 
-                        fs.remove('.\\backupFolders\\' + filePath, (err) => {
+                        fs.remove(BACKUP_PATH + filePath, (err) => {
                         if(!err) {
                             refleshBackupFileList();
                             }
                         });
                     };
                 });
+            };
+
+            var setPrompt = function() {
+                return prompt({
+                    title: 'SC2 저장소 경로 변경',
+                    label: '현재 경로:'+SC2_STORAGE_PATH,
+                    type: 'input',
+                    alwaysOnTop: 'true'
+                }).then((r)=>{
+                    if(r === null || r === ""){
+                        let temp_config1 = {
+                            SC2StoragePath: defaultSC2Storage
+                        };
+                        SC2_STORAGE_PATH = defaultSC2Storage;
+                        let str_config = JSON.stringify(temp_config1);
+
+                        fs.writeFileSync('config.json', str_config, 'utf-8');
+                        
+                        console.log('초기화 완료.')
+
+                    } else {
+                        let temp_config2 = {
+                            SC2StoragePath: r
+                        };
+                        SC2_STORAGE_PATH = r;
+                        let str_config = JSON.stringify(temp_config2);
+
+                        fs.writeFileSync('config.json', str_config, 'utf-8');
+
+                        dialog.showMessageBox({
+                        title:'알림',
+                        button:['Yes'],
+                        message:'SC2 저장소 경로가 변경되었습니다.\n 버튼을 누르고 아무 것도 입력하지 않을 시 기본 경로로 초기화 됩니다.'
+                        })
+                    }
+                })
             };
 
             window.addEventListener('load', function() {
@@ -176,6 +230,10 @@
 
                 //목록 최신화
                 refleshBackupFileList();
+
+                document.getElementById('btnChangeSC2Storage').addEventListener('click', function() {
+                    setPrompt();
+                })
 
                 document.getElementById('btnBackup').addEventListener('click', function() {
                     backupmode();
@@ -191,7 +249,7 @@
     <body class="kigui desktop">
         <div class="kigui desktop_titlebar">
             <span class="title"> <!--제목표시줄-->
-                스타2 저장소 백업툴 v2.0.1
+                스타2 저장소 백업툴 v2.0.2
             </span>
             <span class="buttons">
                 <button id="minimize">ㅡ</button>
@@ -207,11 +265,11 @@
                 잘 사용해주세요.
             </div>
             <div class="kigui frame">
-                <button id="btnBackup" class="kigui btn box">즉시 백업 하기</button>
-                <input class="autocheck" type="checkbox" name="automode" value="autosave" checked="true" onclick="">자동 저장(60분)</input>
+                <button id="btnBackup" class="kigui btn box">백업</button>
+                <input class="autocheck" style="font-size: 11px;" type="checkbox" name="automode" value="autosave" checked="true" onclick="">자동 백업(60분)</input>
+                <button id="btnChangeSC2Storage" style="font-size: 12px; float: right;" class="kigui btn box">SC2 저장소 위치 재선택</button>
             </div>
             <div id="files" class="kigui frame" style="overflow:auto; height:393px">
-
             </div>
         </section>
     </body>
