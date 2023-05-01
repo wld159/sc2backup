@@ -1,12 +1,12 @@
 {
   "name": "sc2backup",
   "productName": "sc2backup",
-  "version": "2.0.2",
+  "version": "2.1.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "electron index.js",
-    "build": "electron-packager . sc2backup -out=dist --overwrite --platform=win32 --arch=all --overwrite"
+    "build": "electron-packager . sc2backup -out=dist --platform=win32 --arch=all --overwrite"
   },
   "author": "",
   "license": "ISC",
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "asar": "^3.0.3",
-    "electron": "^4.1.4",
-    "electron-packager": "^15.2.0"
+    "electron": "^4.2.12",
+    "electron-packager": "^15.5.2"
   }
 }

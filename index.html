@@ -12,17 +12,18 @@
             let win = require('electron').remote.getCurrentWindow();
             // let tray = require('electron').remote.Tray;
             const {dialog} = require('electron').remote;
+            const { ipcRenderer } = require('electron');
             const path = require('path');
             const fs = require('fs-extra');
             const sevenBin = require('7zip-bin');
             const n7z = require('node-7z');
             var prompt = require('electron-prompt');
-            // var config = require('config.json');
 
-            // let automode;
+            // let autoBackupCheck;
             var timeId = 0;
             const pathTo7zip = sevenBin.path7za;
             var SC2_STORAGE_PATH = new String();
+
             const defaultSC2Storage = process.env['USERPROFILE'] + '\\Documents\\StarCraft II\\Accounts';
 
             const BACKUP_PATH = `${__dirname}\\backupFolders\\`;
@@ -34,7 +35,7 @@
                 SC2_STORAGE_PATH = config.SC2StoragePath;
             } catch (err) {  // 파일이 없는데 읽으려 함
                 var config = {
-                    "SC2StoragePath": defaultSC2Storage
+                    "SC2StoragePath": defaultSC2Storage,
                 }
                 SC2_STORAGE_PATH = defaultSC2Storage;
                 let str_config = JSON.stringify(config);
@@ -75,12 +76,12 @@
             // }
 
             // 백업 모드
-            function backupmode() {
+            function backupInterval() {
                 clearInterval(timeId);
                 backup();
-                if (document.getElementsByName('automode')[0].checked == true) {
-                    timeId = setInterval(backup, 3600*1000);
-                }
+                // if (document.getElementsByName('autoBackupCheck')[0].checked == true) {
+                timeId = setInterval(backup, 3600*1000);
+                // }
             }
 
             // 백업 함수 https://www.npmjs.com/package/node-7z-archive
@@ -135,37 +136,37 @@
                 };
 
                 qTemp = dialog.showMessageBox(null, restoreMsgOption, (res) => {
-                        if (res === 0) { 
-                                // 복원 전 현재 저장소 백업
-                                const dir = __dirname;
-                                process.chdir(SC2_STORAGE_PATH);
+                    if (res === 0) { 
+                        // 복원 전 현재 저장소 백업
+                        const dir = __dirname;
+                        process.chdir(SC2_STORAGE_PATH);
 
-                                const myStream1 = n7z.add(`${BACKUP_PATH}sc2s_${getFormatDate()}_r.7z`, '*.SC2Bank' ,{
-                                    $bin: pathTo7zip,
-                                    recursive: true
-                                });
-                                process.chdir(dir);
-                                
-                                // 복원
-                                setTimeout(()=> {
-                                const myStream2 = n7z.extractFull(`${BACKUP_PATH}${filePath}`, SC2_STORAGE_PATH ,{
-                                    $bin: pathTo7zip,
-                                    recursive: false,
-                                    $progress: true
-                                });}, 1000);
+                        const myStream1 = n7z.add(`${BACKUP_PATH}sc2s_${getFormatDate()}_r.7z`, '*.SC2Bank' ,{
+                            $bin: pathTo7zip,
+                            recursive: true
+                        });
+                        process.chdir(dir);
+                        
+                        // 복원
+                        setTimeout(()=> {
+                        const myStream2 = n7z.extractFull(`${BACKUP_PATH}${filePath}`, SC2_STORAGE_PATH ,{
+                            $bin: pathTo7zip,
+                            recursive: false,
+                            $progress: true
+                        });}, 1000);
 
-                                setTimeout(()=> {
-                                dialog.showMessageBox({
-                                        title:'알림',
-                                        buttons:['Yes'],
-                                        message:'복원이 완료되었습니다. 스타2에 접속하여 확인 바랍니다.'
-                                });
-                                },1000);
+                        setTimeout(()=> {
+                        dialog.showMessageBox({
+                                title:'알림',
+                                buttons:['Yes'],
+                                message:'복원이 완료되었습니다. 스타2에 접속하여 확인 바랍니다.'
+                        });
+                        },1000);
 
-                                setTimeout(refleshBackupFileList, 100); // 지연시간
-                        };
-                    });
-                }
+                        setTimeout(refleshBackupFileList, 100); // 지연시간
+                    };
+                });
+            }
 
             //백업 삭제 함수
             function deleteRestore(filePath) {
@@ -196,7 +197,7 @@
                 }).then((r)=>{
                     if(r === null || r === ""){
                         let temp_config1 = {
-                            SC2StoragePath: defaultSC2Storage
+                            SC2StoragePath: defaultSC2Storage,
                         };
                         SC2_STORAGE_PATH = defaultSC2Storage;
                         let str_config = JSON.stringify(temp_config1);
@@ -207,7 +208,7 @@
 
                     } else {
                         let temp_config2 = {
-                            SC2StoragePath: r
+                            SC2StoragePath: r,
                         };
                         SC2_STORAGE_PATH = r;
                         let str_config = JSON.stringify(temp_config2);
@@ -223,24 +224,47 @@
                 })
             };
 
+            function addStartup(checked) {
+                const isChecked = chkStart.checked;
+                    console.log('Is installed?', isChecked);
+                    ipcRenderer.send('autostart-change', isChecked);
+            }
+
             window.addEventListener('load', function() {
+                // 메인 프로세스로부터 자동 시작 설정 상태를 요청합니다.
+                ipcRenderer.send('get-autostart-status');
+
+                // 자동 시작 설정 상태를 받아와 체크박스에 반영합니다.
+                ipcRenderer.on('autostart-status', (event, isEnabled) => {
+                    chkStart.checked = isEnabled;
+                });
+
                 document.getElementById('close').addEventListener('click', closeWindow);
                 document.getElementById('minimize').addEventListener('click', minimizeWindow);
                 // document.getElementById('maximize').addEventListener('click', maximizeWindow);
 
+                // 시작 시, 자동 백업 시작
+                backupInterval();
+
                 //목록 최신화
                 refleshBackupFileList();
+
+                document.getElementByName('chkStart').addEventListener('click', function() {
+                    const isChecked = chkStart.checked;
+                    console.log('Is installed?', isChecked);
+                    ipcRenderer.send('autostart-change', isChecked);
+                })
 
                 document.getElementById('btnChangeSC2Storage').addEventListener('click', function() {
                     setPrompt();
                 })
 
                 document.getElementById('btnBackup').addEventListener('click', function() {
-                    backupmode();
+                    backupInterval();
                     dialog.showMessageBox({
                         title:'알림',
                         buttons:['Yes'],
-                        message:'백업에 성공하였습니다.'
+                        message:'백업에 성공하였습니다. 자동 백업을 시작합니다.'
                     });
                 });
             });
@@ -249,7 +273,7 @@
     <body class="kigui desktop">
         <div class="kigui desktop_titlebar">
             <span class="title"> <!--제목표시줄-->
-                스타2 저장소 백업툴 v2.0.2
+                스타2 저장소 백업툴 v2.1.1
             </span>
             <span class="buttons">
                 <button id="minimize">ㅡ</button>
@@ -266,8 +290,9 @@
             </div>
             <div class="kigui frame">
                 <button id="btnBackup" class="kigui btn box">백업</button>
-                <input class="autocheck" style="font-size: 11px;" type="checkbox" name="automode" value="autosave" checked="true" onclick="">자동 백업(60분)</input>
-                <button id="btnChangeSC2Storage" style="font-size: 12px; float: right;" class="kigui btn box">SC2 저장소 위치 재선택</button>
+                <!-- <input class="chkBackup" style="font-size: 11px;" type="checkbox" name="autoBackupCheck" value="autoBackup" checked="true" onclick="">자동 백업(60분)</input> -->
+                <!-- <input class="chkStart" name="autoStartupCheck" style="font-size: 11px;" type="checkbox" onclick="addStartup()">윈도우 시작 시 실행</input> -->
+                <button id="btnChangeSC2Storage" style="font-size: 12px; float: right;" class="kigui btn box">저장소 위치 재선택</button>
             </div>
             <div id="files" class="kigui frame" style="overflow:auto; height:393px">
             </div>
